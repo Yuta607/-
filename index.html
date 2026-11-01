@@ -10,7 +10,7 @@
     color: white;
     font-family: sans-serif;
     margin: 0;
-    padding: 20px;
+    padding: 15px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -18,13 +18,13 @@
   .screen { display: none; width: 100%; max-width: 400px; }
   .screen.active { display: block; }
   
-  h2 { text-align: center; color: #4CAF50; }
+  h2 { text-align: center; color: #4CAF50; margin-top: 10px; }
   
   /* フォーム・ボタン系 */
   input, select, button {
     width: 100%;
     padding: 12px;
-    margin-bottom: 15px;
+    margin-bottom: 12px;
     box-sizing: border-box;
     font-size: 1.1rem;
     border-radius: 8px;
@@ -36,43 +36,50 @@
   
   /* ダッシュボード（履歴） */
   .stats-box { background: #333; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center;}
-  .history-list { background: #222; padding: 10px; border-radius: 8px; max-height: 200px; overflow-y: auto; }
-  .history-item { border-bottom: 1px solid #444; padding: 8px 0; font-size: 0.9rem; }
+  .history-list { background: #222; padding: 10px; border-radius: 8px; max-height: 250px; overflow-y: auto; }
+  .history-item { border-bottom: 1px solid #444; padding: 10px 0; font-size: 0.95rem; display: flex; flex-direction: column; gap: 5px; }
   
-  /* コート */
-  .court {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: 120px 120px 120px;
-    gap: 4px;
-    background-color: white;
-    padding: 4px;
-    border: 4px solid #ff4444;
-    border-radius: 8px;
-    margin-bottom: 20px;
-  }
-  .cell {
-    background-color: #1b5e20;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 3rem;
-    font-weight: bold;
-    color: white;
-    transition: background-color 0.1s;
-  }
-  .cell.active { background-color: #f44336; }
-  
-  .controls { display: flex; gap: 10px; }
-  
-  /* カウンター表示 */
+  /* コート・カウンター */
   #counter-display {
     font-size: 1.8rem;
     font-weight: bold;
     text-align: center;
-    margin-bottom: 15px;
+    margin-bottom: 10px;
     color: #03a9f4;
   }
+  
+  .court-wrapper {
+    background-color: #00695c;
+    padding: 8px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+  }
+  
+  /* 3列×3行のリアルなコート配置 */
+  .court {
+    display: grid;
+    grid-template-columns: 1fr 0.6fr 1fr; /* 左右のマスと、中央のホーム */
+    grid-template-rows: 90px 90px 120px; /* 3行目(奥)を少し長くして後ろ感を出す */
+    gap: 4px;
+    background-color: white;
+    border: 4px solid white;
+  }
+  .cell {
+    background-color: #1b5e20;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-size: 2rem;
+    font-weight: bold;
+    color: rgba(255,255,255,0.7);
+    transition: background-color 0.1s;
+  }
+  .cell span { font-size: 0.8rem; font-weight: normal; margin-top: 4px; }
+  .cell.active { background-color: #f44336; color: white; }
+  .cell.center-mark { background-color: #2e7d32; font-size: 1rem; color: #aaa; }
+  
+  .flex-row { display: flex; gap: 10px; }
 </style>
 </head>
 <body>
@@ -94,9 +101,9 @@
     </div>
 
     <button class="primary" onclick="showScreen('training-screen')">トレーニング開始 🏸</button>
-    <button class="secondary" onclick="logout()" style="margin-top: 10px;">別のプレイヤーにする</button>
+    <button class="secondary" onclick="logout()" style="margin-top: 10px;">プレイヤー変更</button>
 
-    <h3 style="margin-top: 30px; font-size: 1rem;">過去の履歴</h3>
+    <h3 style="margin-top: 25px; font-size: 1rem;">過去の履歴</h3>
     <div class="history-list" id="history-container">
       <!-- 履歴がここに入ります -->
     </div>
@@ -104,19 +111,26 @@
 
   <!-- 3. トレーニング画面 -->
   <div id="training-screen" class="screen">
-    <h2>トレーニング</h2>
-    
-    <!-- カウンター -->
     <div id="counter-display">0 回</div>
 
-    <div class="court">
-      <div class="cell" id="cell-1">1</div><div class="cell" id="cell-4">4</div>
-      <div class="cell" id="cell-2">2</div><div class="cell" id="cell-5">5</div>
-      <div class="cell" id="cell-3">3</div><div class="cell" id="cell-6">6</div>
+    <div class="court-wrapper">
+      <div class="court">
+        <!-- 前衛 -->
+        <div class="cell" id="cell-1">1<span>前・左</span></div>
+        <div class="cell center-mark"></div>
+        <div class="cell" id="cell-4">4<span>前・右</span></div>
+        <!-- サイド -->
+        <div class="cell" id="cell-2">2<span>左</span></div>
+        <div class="cell center-mark">ホーム</div>
+        <div class="cell" id="cell-5">5<span>右</span></div>
+        <!-- 後衛 -->
+        <div class="cell" id="cell-3">3<span>奥・左</span></div>
+        <div class="cell center-mark"></div>
+        <div class="cell" id="cell-6">6<span>奥・右</span></div>
+      </div>
     </div>
     
-    <div style="display: flex; gap: 10px;">
-      <!-- 回数設定 -->
+    <div class="flex-row">
       <select id="countSelect" style="flex: 1;">
         <option value="10">10回</option>
         <option value="20" selected>20回</option>
@@ -126,17 +140,18 @@
       </select>
 
       <select id="speedSelect" style="flex: 1;">
-        <option value="1500">遅い (1.5秒)</option>
-        <option value="1000" selected>普通 (1.0秒)</option>
-        <option value="700">速い (0.7秒)</option>
+        <option value="2500">超ワイド (2.5秒)</option>
+        <option value="2000" selected>オールコート (2.0秒)</option>
+        <option value="1500">ちょい広め (1.5秒)</option>
+        <option value="1000">ショート (1.0秒)</option>
       </select>
     </div>
     
-    <div class="controls">
+    <div class="flex-row">
       <button class="primary" id="startBtn" onclick="startTraining()">スタート</button>
-      <button class="danger" id="stopBtn" onclick="stopTraining()">ストップ＆記録</button>
+      <button class="danger" id="stopBtn" onclick="stopTraining()">ストップ</button>
     </div>
-    <button class="secondary" onclick="showScreen('dashboard-screen')" style="margin-top: 20px;">戻る</button>
+    <button class="secondary" onclick="showScreen('dashboard-screen')">戻る</button>
   </div>
 
 <script>
@@ -146,13 +161,11 @@
   let count = 0;
   let targetCount = 0;
 
-  // 画面切り替え
   function showScreen(screenId) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById(screenId).classList.add('active');
   }
 
-  // ログイン処理
   function login() {
     const name = document.getElementById('username-input').value.trim();
     if (!name) return alert('名前を入力してください');
@@ -162,27 +175,24 @@
     showScreen('dashboard-screen');
   }
 
-  // ログアウト処理
   function logout() {
     currentUser = '';
     document.getElementById('username-input').value = '';
     showScreen('login-screen');
   }
 
-  // データ保存・読み込み
   function getHistory() {
     const data = localStorage.getItem('fw_data_' + currentUser);
     return data ? JSON.parse(data) : [];
   }
   
-  function saveHistory(score) {
+  function saveHistory(score, playedCount, targetCountStr) {
     const history = getHistory();
     const date = new Date().toLocaleString('ja-JP', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-    history.unshift({ date: date, score: score });
+    history.unshift({ date: date, score: score, playedCount: playedCount, targetStr: targetCountStr });
     localStorage.setItem('fw_data_' + currentUser, JSON.stringify(history));
   }
 
-  // ダッシュボードの表示更新
   function loadDashboard() {
     const history = getHistory();
     const container = document.getElementById('history-container');
@@ -191,7 +201,12 @@
     if (history.length > 0) {
       document.getElementById('last-score').innerText = history[0].score + ' %';
       history.forEach(item => {
-        container.innerHTML += `<div class="history-item">📅 ${item.date} ｜ 達成率: <strong>${item.score}%</strong></div>`;
+        const targetText = item.targetStr === '0' ? '無限' : item.targetStr + '回設定';
+        container.innerHTML += `
+          <div class="history-item">
+            <div>📅 ${item.date} ｜ 達成率: <strong style="color:#4CAF50; font-size:1.1rem;">${item.score}%</strong></div>
+            <div style="color:#aaa;">🏃 実施: ${item.playedCount}回 (${targetText})</div>
+          </div>`;
       });
     } else {
       document.getElementById('last-score').innerText = '-- %';
@@ -199,27 +214,21 @@
     }
   }
 
-  // カウンター表示の更新
   function updateCounterDisplay() {
     const display = document.getElementById('counter-display');
-    if (targetCount === 0) {
-      display.innerText = `${count} 回`;
-    } else {
-      display.innerText = `${count} / ${targetCount} 回`;
-    }
+    display.innerText = targetCount === 0 ? `${count} 回` : `${count} / ${targetCount} 回`;
   }
 
-  // 記録入力画面を出す
   function promptAndSave() {
-    const score = prompt(`お疲れ様でした！（${count}回）\n今回の達成率（0〜100%）を数字で入力してください。`);
+    const score = prompt(`お疲れ様でした！（実施：${count}回）\n今回の達成率（0〜100%）を入力してください。`);
     if (score !== null && score !== "" && !isNaN(score)) {
-      saveHistory(score);
+      const targetStr = document.getElementById('countSelect').value;
+      saveHistory(score, count, targetStr);
       loadDashboard();
       showScreen('dashboard-screen');
     }
   }
 
-  // --- トレーニング機能 ---
   function highlightRandom() {
     count++;
     updateCounterDisplay();
@@ -230,7 +239,6 @@
     currentCell = random;
     document.getElementById('cell-' + random).classList.add('active');
 
-    // 目標回数に達したら自動ストップ
     if (targetCount > 0 && count >= targetCount) {
       clearInterval(intervalId);
       intervalId = null;
@@ -238,19 +246,19 @@
         document.querySelectorAll('.cell').forEach(c => c.classList.remove('active'));
         currentCell = null;
         promptAndSave();
-      }, 500); // 最後のマスを0.5秒見せてから記録画面を出す
+      }, 500);
     }
   }
 
   function startTraining() {
-    if (intervalId) return; // 既に動いている場合は無視
+    if (intervalId) return;
     
     const speed = parseInt(document.getElementById('speedSelect').value);
     targetCount = parseInt(document.getElementById('countSelect').value);
     count = 0;
     updateCounterDisplay();
     
-    highlightRandom(); // 1回目をすぐに表示
+    highlightRandom();
     intervalId = setInterval(highlightRandom, speed);
   }
 
@@ -260,7 +268,6 @@
     intervalId = null;
     document.querySelectorAll('.cell').forEach(c => c.classList.remove('active'));
     currentCell = null;
-    
     promptAndSave();
   }
 </script>
